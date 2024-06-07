@@ -5,20 +5,21 @@
 	"description": "Compare CSS styles of two elements on a web page.",
 	"permissions": ["activeTab", "scripting", "tabs"],
 	"background": {
-		"service_worker": "background.js"
+	  "service_worker": "background.js"
 	},
 	"action": {
-		"default_popup": "index.html",
-		"default_icon": {
-			"16": "16.png",
-			"48": "48.png",
-			"128": "128.png"
-		}
+	  "default_popup": "index.html",
+	  "default_icon": {
+		"16": "16.png",
+		"48": "48.png",
+		"128": "128.png"
+	  }
 	},
 	"content_scripts": [
-		{
-			"matches": ["<all_urls>"],
-			"js": ["content.js"]
-		}
+	  {
+		"matches": ["<all_urls>"],
+		"js": ["content.js"]
+	  }
 	]
-}
+  }
+  
