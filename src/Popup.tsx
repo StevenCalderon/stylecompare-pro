@@ -1,40 +1,61 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 const Popup = () => {
-  const [element1, setElement1] = useState<{ [key: string]: string } | null>(null);
-  const [element2, setElement2] = useState<{ [key: string]: string } | null>(null);
+  const [element1, setElement1] = useState<{ [key: string]: string } | null>(
+    null
+  );
+  const [element2, setElement2] = useState<{ [key: string]: string } | null>(
+    null
+  );
+
+  chrome.runtime.onMessage.addListener(
+    (request, sender, sendResponse) => {
+      if (request.action === "setElemetSelected" && request.styles) {
+        console.log("Received message: setElemetSelected",request.elementNumber, request);
+        if (request.elementNumber === 1) {
+          setElement1(request.styles);
+        } else {
+          setElement2(request.styles);
+        }
+        
+      }
+    }
+  );
 
   const selectElement = async (elementNumber: number) => {
-    console.log('elementNumber:', elementNumber);
     try {
-      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      console.log('Tab:', tab);
+      const [tab] = await chrome.tabs.query({
+        active: true,
+        currentWindow: true,
+      });
       if (tab.id !== undefined) {
         chrome.scripting.executeScript({
           target: { tabId: tab.id },
-          func: () => {
-            chrome.runtime.sendMessage({ action: 'selectElement' });
+          func: (elementNumber) => {
+            chrome.runtime.sendMessage(
+              { action: "selectElement", elementNumber:elementNumber },
+              (response) => {
+                console.log(
+                  "Response from selectElement -- content.js:",
+                  response
+                );
+              }
+            );
           },
-        });
-        chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-          console.log('Received message:', request);
-          if (request.action === 'elementSelected' && request.styles) {
-            if (elementNumber === 1) {
-              setElement1(request.styles);
-            } else {
-              setElement2(request.styles);
-            }
-          }
+          args: [elementNumber] // 
         });
       }
+      
+    
     } catch (error) {
-      console.error('Error querying tabs:', error);
+      console.error("Error querying tabs:", error);
     }
   };
 
   const compareStyles = () => {
+    console.log("Elementos seleccionados", element1, element2);
     if (!element1 || !element2) {
-      alert('Please select both elements first.');
+      alert("Please select both elements first.");
       return;
     }
 
@@ -45,13 +66,15 @@ const Popup = () => {
       }
     }
 
-    alert(differences.length > 0 ? differences.join('\n') : 'No differences found.');
+    alert(
+      differences.length > 0 ? differences.join("\n") : "No differences found."
+    );
   };
 
   return (
     <div>
-      <button onClick={() => selectElement(1)}>Select Element 1</button>
-      <button onClick={() => selectElement(2)}>Select Element 2</button>
+      <button onClick={async () => await selectElement(1)}>Select Element 1</button>
+      <button onClick={async () => await selectElement(2)}>Select Element 2</button>
       <button onClick={compareStyles}>Compare Styles</button>
     </div>
   );

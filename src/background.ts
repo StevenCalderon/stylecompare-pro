@@ -1,13 +1,23 @@
-// background.js
-export {};
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log('request:', request);
-  if (request.action === "getElementStyles" && sender?.tab?.id) {
-    chrome.scripting.executeScript({
-      target: { tabId: sender.tab.id },
-      func: () => {
-        chrome.runtime.sendMessage({ action: "elementSelected" });
-      },
+  console.info("BACKGROUND --> ", request);
+  if (request.action === "selectElement") {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0].id) {
+        chrome.tabs.sendMessage(
+          tabs[0].id,
+          { action: "fetchStyles", selector: request.selector, elementNumber: request.elementNumber },
+          (response) => {
+            // Optional: Handl the response from content.js if needed
+            sendResponse(response);
+          }
+        );
+      }
     });
+   //elementSelected return true; // Required to use sendResponse asynchronously
+  }
+
+  if(request.action === "setElemetSelected"){
+    chrome.runtime.sendMessage({ action: "setElemetSelected", elementNumber: request.elementNumber });
   }
 });
+export {};

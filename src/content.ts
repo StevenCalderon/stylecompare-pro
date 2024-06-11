@@ -1,6 +1,10 @@
 // contentScript.js
 export {};
-function addElementSelector() {
+let listenerAttached = false;
+function addElementSelector(elementNumber: number) {
+  if (listenerAttached) {
+    return;
+  }
   // Create a highlighter div
   const highlighter = document.createElement("div");
   highlighter.style.position = "absolute";
@@ -21,7 +25,6 @@ function addElementSelector() {
   function onClick(event: MouseEvent) {
     event.preventDefault();
     event.stopPropagation();
-
     document.removeEventListener("mousemove", onMouseMove);
     document.removeEventListener("click", onClick, true);
     document.body.removeChild(highlighter);
@@ -33,20 +36,24 @@ function addElementSelector() {
       stylesObj[element] = styles.getPropertyValue(element);
     }
 
+    listenerAttached = false;
     chrome.runtime.sendMessage({
-      action: "elementSelected",
+      action: "setElemetSelected",
       styles: stylesObj,
+      elementNumber: elementNumber,
     });
   }
 
   document.addEventListener("mousemove", onMouseMove);
   document.addEventListener("click", onClick, true);
+  listenerAttached = true;
 }
 
 // Listen for messages from the popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log('request:', request);
-  if (request.action === "selectElement") {
-    addElementSelector();
+  console.info("CONTENT --> ", request);
+  if (request.action === "fetchStyles") {
+    addElementSelector(request.elementNumber);
   }
 });
+export {};
