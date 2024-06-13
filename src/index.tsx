@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import Popup from './Popup';
+import Popup from './Popup/Popup';
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(
