@@ -3,24 +3,23 @@
 	"name": "Style Compare Pro",
 	"version": "1.0",
 	"description": "Compare CSS styles of two elements on a web page.",
-	"permissions": ["activeTab", "scripting", "tabs"],
+	"permissions": ["activeTab", "scripting", "tabs", "storage"],
 	"background": {
-	  "service_worker": "background.js"
+		"service_worker": "background.js"
 	},
 	"host_permissions": ["*://*/*"],
 	"action": {
-	  "default_popup": "index.html",
-	  "default_icon": {
-		"16": "./images/16.png",
-		"48": "./images/48.png",
-		"128": "./images/128.png"
-	  }
+		"default_popup": "index.html",
+		"default_icon": {
+			"16": "./images/16.png",
+			"48": "./images/48.png",
+			"128": "./images/128.png"
+		}
 	},
 	"content_scripts": [
-	  {
-		"matches": ["<all_urls>"],
-		"js": ["content.js"]
-	  }
+		{
+			"matches": ["<all_urls>"],
+			"js": ["content.js"]
+		}
 	]
-  }
-  
+}
