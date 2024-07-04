@@ -5,15 +5,21 @@ const Popup = () => {
 	const [isActive, setIsActive] = useState(false);
 
 	useEffect(() => {
-		chrome.storage.local.get(['activeExtension'], (result) => {
-			setIsActive(result.activeExtension || false);
+		chrome.storage.local.get(['storage'], (result) => {
+			setIsActive(result.storage.activeExtension || false);
 		});
 	}, []);
 
 	const changeCheckBox = (e: any) => {
 		const checked = e.target.checked;
 		setIsActive(checked);
-		chrome.storage.local.set({ activeExtension: checked });
+		chrome.storage.local.set({
+			storage: {
+				activeExtension: checked,
+				firstElement: false,
+				secondElement: false,
+			},
+		});
 	};
 
 	return (

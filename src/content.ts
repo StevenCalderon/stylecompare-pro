@@ -1,57 +1,138 @@
-// contentScript.js
+import { BTN_ID } from './constants/content.constants';
+
+const createButton = (text: string, backgroundColor?: string) => {
+	const btn = document.createElement('button');
+	btn.innerText = text;
+	btn.id = BTN_ID;
+	btn.style.position = 'fixed';
+	btn.style.top = '10px';
+	btn.style.right = '10px';
+	btn.style.zIndex = '99999999'; // Asegúrate de que el botón esté en un nivel superior
+	btn.style.padding = '10px';
+	btn.style.backgroundColor = backgroundColor ?? '#007bff';
+	btn.style.color = 'white';
+	btn.style.border = 'none';
+	btn.style.borderRadius = '5px';
+	btn.style.cursor = 'pointer';
+	return btn;
+};
+
+const removeButton = () => {
+	const existingButton = document.getElementById(BTN_ID);
+	console.log('existingButton', existingButton);
+	if (existingButton) existingButton.remove();
+};
+
+const handleFirstElementSelected = (button: HTMLButtonElement) => {
+	console.log('handleFirstElementSelected');
+	alert('Seleccionado Elemento 1');
+	chrome.storage.local.set({
+		storage: {
+			activeExtension: true,
+			firstElement: true,
+			secondElement: false,
+		},
+	});
+};
+
+const handleSecondElementSelected = (button: HTMLButtonElement) => {
+	console.log('handleSecondElementsSelected');
+	alert('Seleccionado Elemento 2');
+	chrome.storage.local.set({
+		storage: {
+			activeExtension: true,
+			firstElement: true,
+			secondElement: true,
+		},
+	});
+};
+
+const handleCompareStyles = () => {
+	console.log('handleCompareStyles');
+	alert('Estilos comparados');
+};
+
+const handleBtn = (button: HTMLButtonElement) => {
+	chrome.storage.local.get(['storage']).then((changes) => {
+		const { firstElement, secondElement } = changes.storage;
+		const isStart = !firstElement && !secondElement;
+		const isFirstElementSelected = firstElement && !secondElement;
+		const isBothElementsSelected = firstElement && secondElement;
+		switch (true) {
+			case isStart: {
+				handleFirstElementSelected(button);
+				break;
+			}
+			case isFirstElementSelected: {
+				handleSecondElementSelected(button);
+				break;
+			}
+			case isBothElementsSelected: {
+				handleCompareStyles();
+				break;
+			}
+			default:
+				break;
+		}
+	});
+};
+
+const handleActiveExtension = (changes: {
+	[key: string]: chrome.storage.StorageChange;
+}) => {
+	console.log('handleActiveExtension', changes);
+	let button = document.getElementById(BTN_ID) as HTMLButtonElement;
+
+	if (!button) {
+		button = createButton('Select first element');
+		button.addEventListener('click', (e) => {
+			e.preventDefault();
+			handleBtn(button);
+		});
+		document.body.appendChild(button);
+	} else {
+		const { firstElement, secondElement } = changes.storage.newValue;
+		const isStart = !firstElement && !secondElement;
+		const isFirstElementSelected = firstElement && !secondElement;
+		const isBothElementsSelected = firstElement && secondElement;
+		switch (true) {
+			case isStart: {
+				button.innerText = 'Select first element';
+				break;
+			}
+			case isFirstElementSelected: {
+				button.innerText = 'Select Second element';
+				break;
+			}
+			case isBothElementsSelected: {
+				button.innerText = 'Compare Styles!';
+				break;
+			}
+			default:
+				break;
+		}
+	}
+};
 
 chrome.storage.onChanged.addListener(
 	(
 		changes: { [key: string]: chrome.storage.StorageChange },
 		namespace: string
 	) => {
-		console.log('content -->', changes, namespace);
-		if (namespace === 'local' && changes.activeExtension) {
-			const activeExtension = changes.activeExtension.newValue;
-			if (activeExtension) {
-				// Si la extensión está activada, inyecta el botón "Select Element 1"
-				let button = document.getElementById(
-					'styleComparePro-select-element-1'
-				) as HTMLButtonElement;
-				if (!button) {
-					button = document.createElement('button');
-					button.innerText = 'Select Element 1';
-					button.id = 'styleComparePro-select-element-1'; // Asegúrate de darle un ID único
-					button.style.position = 'fixed';
-					button.style.top = '10px';
-					button.style.right = '10px';
-					button.style.zIndex = '10000'; // Asegúrate de que el botón esté en un nivel superior
-					button.style.padding = '10px';
-					button.style.backgroundColor = '#007bff';
-					button.style.color = 'white';
-					button.style.border = 'none';
-					button.style.borderRadius = '5px';
-					button.style.cursor = 'pointer';
-					let element1Selected = false;
-					button.addEventListener('click', () => {
-						if (!element1Selected) {
-							// Lógica para seleccionar el primer elemento
-							alert('Seleccionado Elemento 1');
-							element1Selected = true;
-							button.innerText = 'Select Element 2';
-						} else {
-							// Lógica para seleccionar el segundo elemento
-							alert('Seleccionado Elemento 2');
-							// Lógica adicional para comparar estilos
-						}
-					});
-					document.body.appendChild(button);
-				}
-			} else {
-				// Si la extensión está desactivada, remueve el botón "Select Element 1" si existe
-				const existingButton = document.getElementById(
-					'styleComparePro-select-element-1'
-				);
-				if (existingButton) {
-					existingButton.remove();
-				}
+		console.log('CHANGES ', changes, 'Namespace ', namespace);
+
+		chrome.storage.local.get(['storage']).then((value) => {
+			console.log('valueStorage ', value);
+			const activeExtension = value.storage.activeExtension;
+
+			console.log('activeExtension ', activeExtension);
+			if (namespace !== 'local') return;
+			if (!activeExtension) {
+				removeButton();
+				return;
 			}
-		}
+			handleActiveExtension(changes);
+		});
 	}
 );
 export {};
