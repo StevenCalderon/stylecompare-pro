@@ -57,3 +57,16 @@ input:checked + .slider:before {
 .slider.round:before {
 	border-radius: 50%;
 }
+
+.styleComparePro-btn-reset{
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 10000;
+  padding: 10px;
+  background-color: #7a1616;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}

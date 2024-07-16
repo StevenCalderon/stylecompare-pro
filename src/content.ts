@@ -1,138 +1,95 @@
-import { BTN_ID } from './constants/content.constants';
+import {
+	BTN_ID,
+	BTN_RESET_STYLES,
+	BTN_STYLES,
+} from './constants/content.constants';
 
-const createButton = (text: string, backgroundColor?: string) => {
+const createBtn = (id: string, styles: any): HTMLButtonElement => {
 	const btn = document.createElement('button');
-	btn.innerText = text;
 	btn.id = BTN_ID;
-	btn.style.position = 'fixed';
-	btn.style.top = '10px';
-	btn.style.right = '10px';
-	btn.style.zIndex = '99999999'; // Asegúrate de que el botón esté en un nivel superior
-	btn.style.padding = '10px';
-	btn.style.backgroundColor = backgroundColor ?? '#007bff';
-	btn.style.color = 'white';
-	btn.style.border = 'none';
-	btn.style.borderRadius = '5px';
-	btn.style.cursor = 'pointer';
+	Object.assign(btn.style, styles);
 	return btn;
 };
 
-const removeButton = () => {
-	const existingButton = document.getElementById(BTN_ID);
-	console.log('existingButton', existingButton);
-	if (existingButton) existingButton.remove();
-};
-
-const handleFirstElementSelected = (button: HTMLButtonElement) => {
-	console.log('handleFirstElementSelected');
-	alert('Seleccionado Elemento 1');
-	chrome.storage.local.set({
-		storage: {
-			activeExtension: true,
-			firstElement: true,
-			secondElement: false,
-		},
+const updateStorage = async (key: string, value: any) => {
+	const oldStorage = await chrome.storage.local.get('storage');
+	await chrome.storage.local.set({
+		storage: { ...oldStorage.storage, [key]: value },
 	});
 };
 
-const handleSecondElementSelected = (button: HTMLButtonElement) => {
-	console.log('handleSecondElementsSelected');
-	alert('Seleccionado Elemento 2');
-	chrome.storage.local.set({
-		storage: {
-			activeExtension: true,
-			firstElement: true,
-			secondElement: true,
-		},
-	});
+const selectElement = async (
+	btn: HTMLButtonElement,
+	key: string,
+	nextText: string,
+) => {
+	alert(
+		`Seleccionado ${
+			key === 'elementFirstSelected' ? 'Elemento 1' : 'Elemento 2'
+		}`,
+	);
+	await updateStorage(key, true);
+	btn.innerText = nextText;
 };
 
-const handleCompareStyles = () => {
-	console.log('handleCompareStyles');
-	alert('Estilos comparados');
+const handleButtonClick = (btn: HTMLButtonElement) => {
+	const actions: { [key: string]: () => void } = {
+		'Select Element 1': () =>
+			selectElement(btn, 'elementFirstSelected', 'Select Element 2'),
+		'Select Element 2': () =>
+			selectElement(btn, 'elementSecondSelected', 'Compare Styles'),
+		'Compare Styles': () => alert('Comparando estilos'),
+	};
+	actions[btn.innerText]?.();
 };
 
-const handleBtn = (button: HTMLButtonElement) => {
-	chrome.storage.local.get(['storage']).then((changes) => {
-		const { firstElement, secondElement } = changes.storage;
-		const isStart = !firstElement && !secondElement;
-		const isFirstElementSelected = firstElement && !secondElement;
-		const isBothElementsSelected = firstElement && secondElement;
-		switch (true) {
-			case isStart: {
-				handleFirstElementSelected(button);
-				break;
-			}
-			case isFirstElementSelected: {
-				handleSecondElementSelected(button);
-				break;
-			}
-			case isBothElementsSelected: {
-				handleCompareStyles();
-				break;
-			}
-			default:
-				break;
-		}
-	});
-};
+const resetStorage = () => {
+  updateStorage('storage', {
+    elementFirstSelected: false,
+    elementSecondSelected: false,
+    activeExtension: true,
+  });
+}
 
-const handleActiveExtension = (changes: {
+const handleActiveExtension = async (changes: {
 	[key: string]: chrome.storage.StorageChange;
 }) => {
-	console.log('handleActiveExtension', changes);
 	let button = document.getElementById(BTN_ID) as HTMLButtonElement;
-
 	if (!button) {
-		button = createButton('Select first element');
-		button.addEventListener('click', (e) => {
-			e.preventDefault();
-			handleBtn(button);
-		});
+		button = createBtn(BTN_ID, BTN_STYLES);
+		button.innerText = 'Select Element 1';
+		await updateStorage('elementFirstSelected', false);
+		button.addEventListener('click', () => handleButtonClick(button));
 		document.body.appendChild(button);
+
+		const btnReset = createBtn(`${BTN_ID}-reset`, BTN_RESET_STYLES);
+		btnReset.innerText = 'Reset';
+		btnReset.addEventListener('click',() => resetStorage());
+		document.body.appendChild(btnReset);
 	} else {
-		const { firstElement, secondElement } = changes.storage.newValue;
-		const isStart = !firstElement && !secondElement;
-		const isFirstElementSelected = firstElement && !secondElement;
-		const isBothElementsSelected = firstElement && secondElement;
-		switch (true) {
-			case isStart: {
-				button.innerText = 'Select first element';
-				break;
-			}
-			case isFirstElementSelected: {
-				button.innerText = 'Select Second element';
-				break;
-			}
-			case isBothElementsSelected: {
-				button.innerText = 'Compare Styles!';
-				break;
-			}
-			default:
-				break;
-		}
+		const { elementFirstSelected, elementSecondSelected } =
+			changes.storage.newValue;
+		let text = 'Select Element 1';
+		if (elementFirstSelected && !elementSecondSelected)
+			text = 'Select Element 2';
+		if (elementFirstSelected && elementSecondSelected) text = 'Compare Styles';
+		button.innerText = text;
 	}
 };
 
-chrome.storage.onChanged.addListener(
-	(
-		changes: { [key: string]: chrome.storage.StorageChange },
-		namespace: string
-	) => {
-		console.log('CHANGES ', changes, 'Namespace ', namespace);
+chrome.storage.onChanged.addListener((changes, namespace) => {
+	console.log('CHANGED --->', changes, namespace);
+	if (
+		namespace !== 'local' ||
+		changes.storage?.newValue?.activeExtension === undefined
+	)
+		return;
 
-		chrome.storage.local.get(['storage']).then((value) => {
-			console.log('valueStorage ', value);
-			const activeExtension = value.storage.activeExtension;
-
-			console.log('activeExtension ', activeExtension);
-			if (namespace !== 'local') return;
-			if (!activeExtension) {
-				removeButton();
-				return;
-			}
-			handleActiveExtension(changes);
-		});
+	if (changes.storage.newValue.activeExtension) {
+		handleActiveExtension(changes);
+	} else {
+		document.getElementById(BTN_ID)?.remove();
 	}
-);
+});
+
 export {};
