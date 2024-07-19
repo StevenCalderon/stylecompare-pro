@@ -6,7 +6,8 @@ const Popup = () => {
 
   useEffect(() => {
     chrome.storage.local.get(['storage'], (result) => {
-      setIsActive(result.storage.activeExtension || false);
+      const storage = result.storage || { activeExtension: false }; // Valor predeterminado si no existe
+      setIsActive(storage.activeExtension);
     });
   }, []);
 

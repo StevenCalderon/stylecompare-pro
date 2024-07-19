@@ -1,3 +1,4 @@
+import { createElement } from './common/utils/content.util';
 import {
   BTN_ID,
   BTN_RESET_ID,
@@ -5,14 +6,8 @@ import {
   BTN_STYLES,
   CONTAINER_STYLES,
   DIV_CONTAINER_ID,
+  ICON_RESET_SVG,
 } from './constants/content.constants';
-
-const createBtn = (id: string, styles: any): HTMLButtonElement => {
-  const btn = document.createElement('button');
-  btn.id = id;
-  Object.assign(btn.style, styles);
-  return btn;
-};
 
 const updateStorage = async (key: string, value: any) => {
   const oldStorage = await chrome.storage.local.get('storage');
@@ -49,30 +44,33 @@ const resetStorage = () => {
 
 const handleActiveExtension = async (changes: { [key: string]: chrome.storage.StorageChange }) => {
   let button = document.getElementById(BTN_ID) as HTMLButtonElement;
-  console.log('handleActiveExtension btn->', button, changes);
-  if (!button) {
-    const divContainer = document.createElement('div');
-    divContainer.id = DIV_CONTAINER_ID;
-    Object.assign(divContainer.style, CONTAINER_STYLES);
+  let btnReset = document.getElementById(BTN_RESET_ID) as HTMLButtonElement;
+  let divContainer = document.getElementById(DIV_CONTAINER_ID) as HTMLElement;
 
-    button = createBtn(BTN_ID, BTN_STYLES);
-    button.innerText = 'Select Element 1';
-    await updateStorage('elementFirstSelected', false);
-    button.addEventListener('click', () => handleButtonClick(button));
+  if (!divContainer) {
+    divContainer = createElement('div', DIV_CONTAINER_ID, CONTAINER_STYLES) as HTMLElement;
+    divContainer.classList.add(DIV_CONTAINER_ID);
+    document.body.appendChild(divContainer);
+  }
 
-    const btnReset = createBtn(BTN_RESET_ID, BTN_RESET_STYLES);
-    btnReset.innerText = 'Reset';
+  if (!btnReset) {
+    btnReset = createElement('button', BTN_RESET_ID, BTN_RESET_STYLES) as HTMLButtonElement;
+    btnReset.innerHTML = ICON_RESET_SVG;
     btnReset.addEventListener('click', () => resetStorage());
     divContainer.appendChild(btnReset);
-    divContainer.appendChild(button);
-    document.body.appendChild(divContainer);
-  } else {
-    const { elementFirstSelected, elementSecondSelected } = changes.storage.newValue;
-    let text = 'Select Element 1';
-    if (elementFirstSelected && !elementSecondSelected) text = 'Select Element 2';
-    if (elementFirstSelected && elementSecondSelected) text = 'Compare Styles';
-    button.innerText = text;
   }
+
+  if (!button) {
+    button = createElement('button', BTN_ID, BTN_STYLES) as HTMLButtonElement;
+    button.addEventListener('click', () => handleButtonClick(button));
+    divContainer.appendChild(button);
+  }
+
+  const { elementFirstSelected, elementSecondSelected } = changes.storage.newValue;
+  let text = 'Select Element 1';
+  if (elementFirstSelected && !elementSecondSelected) text = 'Select Element 2';
+  if (elementFirstSelected && elementSecondSelected) text = 'Compare Styles';
+  button.innerText = text;
 };
 
 chrome.storage.onChanged.addListener((changes, namespace) => {
@@ -82,7 +80,9 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
   if (changes.storage.newValue.activeExtension) {
     handleActiveExtension(changes);
   } else {
-    document.getElementById(DIV_CONTAINER_ID)?.remove();
+    const divs = document.getElementsByClassName(DIV_CONTAINER_ID);
+    if (divs.length <= 0) return;
+    Array.from(divs).forEach((div) => div.remove());
   }
 });
 
