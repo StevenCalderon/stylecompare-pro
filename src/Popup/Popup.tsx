@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { IStorage } from '../content';
 import './PopupStyle.css';
 
 const Popup = () => {
@@ -18,9 +19,10 @@ const Popup = () => {
     oldStorage.then((result) => {
       chrome.storage.local.set({
         storage: {
-          ...result.storage,
           activeExtension: checked,
-        },
+          elementFirstSelected: { selected: false, styles: '' },
+          elementSecondSelected: { selected: false, styles: '' },
+        } as IStorage,
       });
     });
   };

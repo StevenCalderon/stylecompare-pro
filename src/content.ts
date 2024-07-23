@@ -1,3 +1,5 @@
+import flowCompareStyles from './common/flows/flowCompareStyles/flowCompareStyles';
+import flowSelectElement from './common/flows/flowSelectElement/flowSelectElement';
 import { createElement } from './common/utils/content.util';
 import {
   BTN_ID,
@@ -9,24 +11,18 @@ import {
   ICON_RESET_SVG,
 } from './constants/content.constants';
 
-const updateStorage = async (key: string, value: any) => {
-  const oldStorage = await chrome.storage.local.get('storage');
-  await chrome.storage.local.set({
-    storage: { ...oldStorage.storage, [key]: value },
-  });
-};
-
-const selectElement = async (btn: HTMLButtonElement, key: string, nextText: string) => {
-  alert(`Seleccionado ${key === 'elementFirstSelected' ? 'Elemento 1' : 'Elemento 2'}`);
-  await updateStorage(key, true);
-  btn.innerText = nextText;
-};
-
+export interface IStorage {
+  elementFirstSelected: { selected: boolean; styles: string };
+  elementSecondSelected: { selected: boolean; styles: string };
+  activeExtension: boolean;
+}
 const handleButtonClick = (btn: HTMLButtonElement) => {
   const actions: { [key: string]: () => void } = {
-    'Select Element 1': () => selectElement(btn, 'elementFirstSelected', 'Select Element 2'),
-    'Select Element 2': () => selectElement(btn, 'elementSecondSelected', 'Compare Styles'),
-    'Compare Styles': () => alert('Comparando estilos'),
+    'Select Element 1': () =>
+      flowSelectElement({ btn, keyStorage: 'elementFirstSelected', nextText: 'Select Element 2' }),
+    'Select Element 2': () =>
+      flowSelectElement({ btn, keyStorage: 'elementSecondSelected', nextText: 'Compare Styles' }),
+    'Compare Styles': async () => await flowCompareStyles(),
   };
   actions[btn.innerText]?.();
 };
@@ -35,10 +31,10 @@ const resetStorage = () => {
   console.log('Reset Storage');
   chrome.storage.local.set({
     storage: {
-      elementFirstSelected: false,
-      elementSecondSelected: false,
+      elementFirstSelected: { selected: false, styles: '' },
+      elementSecondSelected: { selected: false, styles: '' },
       activeExtension: true,
-    },
+    } as IStorage,
   });
 };
 
@@ -48,7 +44,7 @@ const handleActiveExtension = async (changes: { [key: string]: chrome.storage.St
   let divContainer = document.getElementById(DIV_CONTAINER_ID) as HTMLElement;
 
   if (!divContainer) {
-    divContainer = createElement('div', DIV_CONTAINER_ID, CONTAINER_STYLES) as HTMLElement;
+    divContainer = createElement('div', DIV_CONTAINER_ID, CONTAINER_STYLES);
     divContainer.classList.add(DIV_CONTAINER_ID);
     document.body.appendChild(divContainer);
   }
@@ -65,23 +61,21 @@ const handleActiveExtension = async (changes: { [key: string]: chrome.storage.St
     button.addEventListener('click', () => handleButtonClick(button));
     divContainer.appendChild(button);
   }
-
+  console.log('🚀 ~ handleActiveExtension ~ changes.storage.newValue:', changes.storage.newValue);
   const { elementFirstSelected, elementSecondSelected } = changes.storage.newValue;
   let text = 'Select Element 1';
-  if (elementFirstSelected && !elementSecondSelected) text = 'Select Element 2';
-  if (elementFirstSelected && elementSecondSelected) text = 'Compare Styles';
+  if (elementFirstSelected.selected && !elementSecondSelected.selected) text = 'Select Element 2';
+  if (elementFirstSelected.selected && elementSecondSelected.selected) text = 'Compare Styles';
   button.innerText = text;
 };
 
 chrome.storage.onChanged.addListener((changes, namespace) => {
-  console.log('Cambio detectado en el listenining ', changes, namespace, changes.storage.newValue.activeExtension);
   if (namespace !== 'local' || changes.storage?.newValue?.activeExtension === undefined) return;
 
   if (changes.storage.newValue.activeExtension) {
     handleActiveExtension(changes);
   } else {
     const divs = document.getElementsByClassName(DIV_CONTAINER_ID);
-    if (divs.length <= 0) return;
     Array.from(divs).forEach((div) => div.remove());
   }
 });
