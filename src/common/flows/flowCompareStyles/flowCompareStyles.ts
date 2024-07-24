@@ -1,27 +1,6 @@
-const displayDifferences = (differences: { [key: string]: { style1: string; style2: string } }) => {
-  const resultDiv = document.createElement('div');
-  resultDiv.id = 'style-comparison-results';
-  resultDiv.style.position = 'fixed';
-  resultDiv.style.top = '10px';
-  resultDiv.style.left = '10px';
-  resultDiv.style.backgroundColor = 'white';
-  resultDiv.style.border = '1px solid #ccc';
-  resultDiv.style.padding = '10px';
-  resultDiv.style.zIndex = '10000';
-  document.body.appendChild(resultDiv);
-
-  const header = document.createElement('h3');
-  header.innerText = 'Differences in Styles';
-  resultDiv.appendChild(header);
-
-  for (const key in differences) {
-    if (differences.hasOwnProperty(key)) {
-      const { style1, style2 } = differences[key];
-      const p = document.createElement('p');
-      p.innerHTML = `<strong>${key}:</strong> Element 1: <code>${style1}</code> | Element 2: <code>${style2}</code>`;
-      resultDiv.appendChild(p);
-    }
-  }
+const displayDifferences = async (differences: { [key: string]: { style1: string; style2: string } }) => {
+  await chrome.storage.local.set({ differences });
+  chrome.runtime.sendMessage({ action: 'displayDifferences', differences });
 };
 
 const compareTwoStyles = (styles1: { [key: string]: string }, styles2: { [key: string]: string }) => {
@@ -55,6 +34,6 @@ const flowCompareStyles = async () => {
   const styles2 = elementSecondSelected.styles;
   const differences = compareTwoStyles(styles1, styles2);
 
-  displayDifferences(differences);
+  await displayDifferences(differences);
 };
 export default flowCompareStyles;
