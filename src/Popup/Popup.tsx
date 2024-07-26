@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
-import { IStorage } from '../content';
 import './PopupStyle.css';
+import { IStorage } from '../common/constants/content.constants';
 
 const Popup = () => {
   const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
     chrome.storage.local.get(['storage'], (result) => {
-      const storage = result.storage || { activeExtension: false }; // Valor predeterminado si no existe
+      const storage = result.storage || { activeExtension: false };
       setIsActive(storage.activeExtension);
     });
   }, []);
@@ -20,8 +20,8 @@ const Popup = () => {
       chrome.storage.local.set({
         storage: {
           activeExtension: checked,
-          elementFirstSelected: { selected: false, styles: '' },
-          elementSecondSelected: { selected: false, styles: '' },
+          elementFirstSelected: null,
+          elementSecondSelected: null,
         } as IStorage,
       });
     });

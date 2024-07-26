@@ -1,5 +1,4 @@
-import { BTN_ID } from '../../../constants/content.constants';
-import { IStorage } from '../../../content';
+import { BTN_ID, IStorage } from '../../../common/constants/content.constants';
 
 export interface IFlowSelectElement {
   btn: HTMLButtonElement;
@@ -34,18 +33,8 @@ const updateStorage = async (key: string, value: any) => {
 };
 
 const selectElement = async (btn: HTMLButtonElement, key: string, nextText: string, element?: HTMLElement) => {
-  await updateStorage(key, { selected: true, styles: element ? getComputedStyles(element) : '' });
+  await updateStorage(key, btn);
   btn.innerText = nextText;
-};
-
-const getComputedStyles = (element: HTMLElement): { [key: string]: string } => {
-  const styles: { [key: string]: string } = {};
-  const computedStyles = window.getComputedStyle(element);
-  for (const style in computedStyles) {
-    const property = style;
-    styles[property] = computedStyles.getPropertyValue(property);
-  }
-  return styles;
 };
 
 const flowSelectElement = (props: IFlowSelectElement) => {
@@ -63,6 +52,7 @@ const flowSelectElement = (props: IFlowSelectElement) => {
     if (target.id !== BTN_ID) {
       event.preventDefault();
       event.stopPropagation();
+      event.stopImmediatePropagation();
       document.body.removeChild(overlay);
       document.removeEventListener('mouseover', handleMouseOver);
       document.removeEventListener('click', handleClick);

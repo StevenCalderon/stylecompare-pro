@@ -1,5 +1,4 @@
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.info('BACKGROUND --> ', request);
   if (request.action === 'selectElement') {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0].id) {

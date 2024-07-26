@@ -5,10 +5,10 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
   mode: 'production',
   entry: {
-    background: './src/background.ts',
-    content: './src/content.ts',
+    background: './src/background/background.ts',
+    content: './src/content/content.ts',
     popup: './src/index.tsx',
-    differencesPopUp: './src/common/flows/flowCompareStyles/DifferencesPopUp.tsx',
+    differencesPopUp: './src/common/components/DifferencesPopUp/DifferencesPopUp.tsx',
   },
   output: {
     path: path.resolve(__dirname, 'build'),
