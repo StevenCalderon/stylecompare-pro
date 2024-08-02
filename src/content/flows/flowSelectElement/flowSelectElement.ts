@@ -1,4 +1,5 @@
-import { BTN_ID, IStorage } from '../../../common/constants/content.constants';
+import { BTN_ID } from '../../../common/constants/content.constants';
+import { IStorage } from '../../../common/model/differences.model';
 
 export interface IFlowSelectElement {
   btn: HTMLButtonElement;
@@ -32,8 +33,27 @@ const updateStorage = async (key: string, value: any) => {
   });
 };
 
-const selectElement = async (btn: HTMLButtonElement, key: string, nextText: string, element?: HTMLElement) => {
-  await updateStorage(key, btn);
+const getElementStyles = (element: HTMLElement) => {
+  const computedStyles = window.getComputedStyle(element);
+  const styles: { [key: string]: string } = {};
+
+  for (let i = 0; i < computedStyles.length; i++) {
+    const key = computedStyles[i];
+    styles[key] = computedStyles.getPropertyValue(key);
+  }
+
+  return styles;
+};
+
+const getElementHtmlAndStyles = (element: HTMLElement) => {
+  const html = element.outerHTML;
+  const styles = getElementStyles(element);
+  return { html, styles };
+};
+
+const selectElement = async (btn: HTMLButtonElement, key: string, nextText: string, element: HTMLElement) => {
+  const elementData = getElementHtmlAndStyles(element);
+  await updateStorage(key, elementData);
   btn.innerText = nextText;
 };
 
@@ -47,12 +67,11 @@ const flowSelectElement = (props: IFlowSelectElement) => {
     }
   };
 
-  const handleClick = (event: MouseEvent) => {
+  const handleClick = async (event: MouseEvent) => {
     const target = event.target as HTMLElement;
     if (target.id !== BTN_ID) {
       event.preventDefault();
       event.stopPropagation();
-      event.stopImmediatePropagation();
       document.body.removeChild(overlay);
       document.removeEventListener('mouseover', handleMouseOver);
       document.removeEventListener('click', handleClick);

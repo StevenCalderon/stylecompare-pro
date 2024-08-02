@@ -8,9 +8,9 @@ import {
   DIV_CONTAINER_ID,
   FIRST_LABEL,
   ICON_RESET_SVG,
-  IStorage,
   SECOND_LABEL,
 } from '../common/constants/content.constants';
+import { IStorage } from '../common/model/differences.model';
 import { createElement } from '../common/utils/content.util';
 import flowCompareStyles from './flows/flowCompareStyles/flowCompareStyles';
 import flowSelectElement from './flows/flowSelectElement/flowSelectElement';
@@ -77,5 +77,4 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
   }
 });
 
-export { };
-
+export {};

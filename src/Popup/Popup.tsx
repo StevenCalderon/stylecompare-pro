@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import './PopupStyle.css';
-import { IStorage } from '../common/constants/content.constants';
+import { IStorage } from '../common/model/differences.model';
 
 const Popup = () => {
   const [isActive, setIsActive] = useState(false);
-
   useEffect(() => {
     chrome.storage.local.get(['storage'], (result) => {
       const storage = result.storage || { activeExtension: false };
@@ -16,7 +15,7 @@ const Popup = () => {
     const checked = e.target.checked;
     setIsActive(checked);
     const oldStorage = chrome.storage.local.get('storage');
-    oldStorage.then((result) => {
+    oldStorage.then(() => {
       chrome.storage.local.set({
         storage: {
           activeExtension: checked,

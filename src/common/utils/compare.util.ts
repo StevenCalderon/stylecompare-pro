@@ -1,17 +1,22 @@
-export const compareTwoStyles = (styles1: { [key: string]: string }, styles2: { [key: string]: string }) => {
-  const differences: { [key: string]: { style1: string; style2: string } } = {};
+import { StylesType } from '../model/differences.model';
+
+export const compareTwoStyles = (styles1: StylesType, styles2: StylesType) => {
+  const diff1: StylesType = {};
+  const diff2: StylesType = {};
   for (const key in styles1) {
     if (styles1.hasOwnProperty(key)) {
       if (styles2[key] !== styles1[key]) {
-        differences[key] = { style1: styles1[key], style2: styles2[key] };
+        diff1[key] = styles1[key];
+        diff2[key] = styles2[key];
       }
     }
   }
 
   for (const key in styles2) {
     if (styles2.hasOwnProperty(key) && !styles1.hasOwnProperty(key)) {
-      differences[key] = { style1: 'Not Set', style2: styles2[key] };
+      diff1[key] = 'Not Set';
+      diff2[key] = styles2[key];
     }
   }
-  return differences;
+  return { diff1, diff2 };
 };
