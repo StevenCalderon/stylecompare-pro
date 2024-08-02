@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import reportWebVitals from '../../../reportWebVitals';
 import { IElement, StylesType } from '../../model/differences.model';
-import Card from '../Card/Card';
 import { compareTwoStyles } from '../../utils/compare.util';
+import Card from '../Card/Card';
 
 const DifferencesPopUp = () => {
   const [elements, setElements] = useState<{
@@ -28,22 +28,20 @@ const DifferencesPopUp = () => {
     <div
       style={{
         display: 'flex',
-        gap: '1rem',
+        gap: '10px',
         flexDirection: 'row',
-        backgroundColor: '#02263C',
+        backgroundColor: 'rgb(2, 38, 60)',
         alignItems: 'center',
-        padding: '5px',
+        justifyContent: 'center',
+        padding: '10px',
+        height: 'calc(100% - 1.3rem)',
       }}
     >
       {elements.firstElement && (
-        <>
-          <Card title={'First Element'} element={elements.firstElement} styleDiff={styleDiffs?.firstStyle} />
-        </>
+        <Card title={'First Element'} element={elements.firstElement} styleDiff={styleDiffs?.firstStyle} />
       )}
       {elements.secondElement && (
-        <>
-          <Card title={'Second Element'} element={elements.secondElement} styleDiff={styleDiffs?.secondStyle} />
-        </>
+        <Card title={'Second Element'} element={elements.secondElement} styleDiff={styleDiffs?.secondStyle} />
       )}
     </div>
   );

@@ -35,7 +35,13 @@ const Card = (data: IProps) => {
       </div>
       <div className="content">
         <div className="content-element">
-          <div ref={(el) => el && el.appendChild(createStyledElement(element))}> </div>
+          <div
+            ref={(el) => {
+              if (el) el.appendChild(createStyledElement(element));
+            }}
+          >
+            {' '}
+          </div>
         </div>
         <div className="content-diff">
           {styleDiff ? (
@@ -51,7 +57,7 @@ const Card = (data: IProps) => {
       </div>
       <div className="footer">
         <button className="btn btn-copy" onClick={() => copyStyles()}>
-          Copy!
+          Copy Styles!
         </button>
       </div>
     </div>
