@@ -30,7 +30,7 @@ const DifferencesPopUp = () => {
         display: 'flex',
         gap: '10px',
         flexDirection: 'row',
-        backgroundColor: 'rgb(2, 38, 60)',
+        backgroundColor: '#f7f8ff',
         alignItems: 'center',
         justifyContent: 'center',
         padding: '10px',

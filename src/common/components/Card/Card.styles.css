@@ -1,19 +1,25 @@
 .container-card {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
   border-radius: 10px;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   width: 50%;
-  background-color: #aed9ea;
+  background-color: #f8f9fa;
   height: 100%;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 0.0625em 0.0625em, rgba(0, 0, 0, 0.25) 0px 0.125em 0.5em,
+    rgba(255, 255, 255, 0.1) 0px 0px 0px 1px inset;
 }
 
 .header {
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
+  background-color: #444655;
+  color: white;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  height: 7%;
 }
 
 .content {
@@ -23,6 +29,7 @@
   align-items: center;
   width: 100%;
   overflow: auto;
+  height: 86%;
 }
 
 .content-element {
@@ -33,17 +40,19 @@
   border-top: 1px solid #01263c;
   border-bottom: 1px solid #01263c;
   box-shadow: inset -1px 2px 5px 0px rgb(2 38 60 / 9%), inset 0px 1px 9px 0px rgb(2 38 60 / 42%);
-  background-color: #e9f4f7;
-  height: max-content;
   width: -webkit-fill-available;
+  height: 50%;
+  overflow: auto;
+  background-color: white;
 }
 
 .content-diff {
   overflow: auto;
   padding: 10px;
-  background: #e9f4f7;
   width: -webkit-fill-available;
-  height: auto;
+  height: 50%;
+  background: #f7f8ff;
+  background-color: white;
 }
 
 .footer {
@@ -51,20 +60,31 @@
   justify-content: center;
   align-items: center;
   width: 100%;
+  background: #212529;
+  background-color: #444655;
+  height: 7%;
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
 }
 
 .btn-copy {
-  padding: 10px;
-  background-color: #02263c;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   font-size: large;
   margin: 0.5rem;
+  background-color: #0c64e6;
+  height: 70%;
+  width: auto;
 }
 
 .btn-copy:hover {
-  padding: 10px;
-  background-color: #01131e;
+  background-color: #0b5ed7;
+}
+
+@media (max-height: 500px) {
+  .btn-copy {
+    font-size: 100%;
+  }
 }
