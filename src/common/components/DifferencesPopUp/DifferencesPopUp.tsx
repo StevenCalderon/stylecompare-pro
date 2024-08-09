@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import reportWebVitals from '../../../reportWebVitals';
-import { IElement, StylesType } from '../../model/differences.model';
+import { IElements, StylesType } from '../../model/differences.model';
 import { compareTwoStyles } from '../../utils/compare.util';
 import Card from '../Card/Card';
 
 const DifferencesPopUp = () => {
   const [elements, setElements] = useState<{
-    firstElement: IElement | null;
-    secondElement: IElement | null;
+    firstElement: IElements | null;
+    secondElement: IElements | null;
   }>({ firstElement: null, secondElement: null });
   const [styleDiffs, setStylesDiffs] = useState<{
     firstStyle: StylesType | null;

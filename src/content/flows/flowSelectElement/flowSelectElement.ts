@@ -46,9 +46,21 @@ const getElementStyles = (element: HTMLElement) => {
 };
 
 const getElementHtmlAndStyles = (element: HTMLElement) => {
-  const html = element.outerHTML;
-  const styles = getElementStyles(element);
-  return { html, styles };
+  const captureStylesRecursively = (el: HTMLElement) => {
+    const elementWithStyles = {
+      html: el.outerHTML,
+      styles: getElementStyles(el),
+      children: [] as any[],
+    };
+
+    for (const child of Array.from(el.children)) {
+      elementWithStyles.children.push(captureStylesRecursively(child as HTMLElement));
+    }
+
+    return elementWithStyles;
+  };
+
+  return captureStylesRecursively(element);
 };
 
 const selectElement = async (btn: HTMLButtonElement, key: string, nextText: string, element: HTMLElement) => {

@@ -1,31 +1,52 @@
 import DOMPurify from 'dompurify';
-import { IElement, StylesType } from '../../model/differences.model';
+import { IElements, StylesType } from '../../model/differences.model';
 import './Card.styles.css';
 export interface IProps {
   title: string;
-  element: IElement;
+  element: IElements;
   styleDiff: StylesType | null;
 }
 
 const sanitizedData = (data: string) => DOMPurify.sanitize(data);
+
+const applyStyles = (element: HTMLElement, styles: { [key: string]: string }) => {
+  for (const [key, value] of Object.entries(styles)) {
+    element.style.setProperty(key, value);
+  }
+};
+
+const createElementWithStylesRecursively = (element: HTMLElement, childrenData: any[]) => {
+  childrenData.forEach((childData, index) => {
+    const childElement = element.children[index] as HTMLElement;
+    applyStyles(childElement, childData.styles);
+    if (childData.children.length > 0) {
+      createElementWithStylesRecursively(childElement, childData.children);
+    }
+  });
+};
+
+const createElementWithStyles = (elementData: any) => {
+  const tempContainer = document.createElement('div');
+  tempContainer;
+  tempContainer.innerHTML = elementData.html;
+  const element = tempContainer.firstElementChild as HTMLElement;
+
+  applyStyles(element, elementData.styles);
+
+  elementData.children.forEach((childData: any, index: number) => {
+    const childElement = element.children[index] as HTMLElement;
+    applyStyles(childElement, childData.styles);
+    createElementWithStylesRecursively(childElement, childData.children);
+  });
+
+  return element;
+};
 
 const Card = (data: IProps) => {
   const { title, element, styleDiff } = data;
   const copyStyles = () => {
     const textToCopy = JSON.stringify(styleDiff);
     navigator.clipboard.writeText(textToCopy);
-  };
-
-  const createStyledElement = (elementData: IElement) => {
-    const element = document.createElement('div');
-    element.innerHTML = sanitizedData(elementData.html);
-
-    const styledElement = element.firstChild as HTMLElement;
-    Object.entries(elementData.styles).forEach(([key, value]) => {
-      styledElement.style.setProperty(key, value);
-    });
-
-    return styledElement;
   };
 
   return (
@@ -36,8 +57,9 @@ const Card = (data: IProps) => {
       <div className="content">
         <div className="content-element">
           <div
+            style={{ width: '100%', height: '100%' }}
             ref={(el) => {
-              if (el) el.appendChild(createStyledElement(element));
+              if (el) el.appendChild(createElementWithStyles(element));
             }}
           >
             {' '}

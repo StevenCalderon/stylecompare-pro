@@ -1,12 +1,13 @@
 export type StylesType = {
   [key: string]: string;
 };
-export interface IElement {
+export interface IElements {
   html: string;
   styles: StylesType;
+  chilren?: IElements[];
 }
 export interface IStorage {
-  elementFirstSelected: IElement | null;
-  elementSecondSelected: IElement | null;
+  elementFirstSelected: IElements | null;
+  elementSecondSelected: IElements | null;
   activeExtension: boolean;
 }
