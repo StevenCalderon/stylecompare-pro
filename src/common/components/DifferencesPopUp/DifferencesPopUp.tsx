@@ -1,10 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import reportWebVitals from '../../../reportWebVitals';
-import { IElements, StylesType } from '../../model/differences.model';
+import { IElements, IStorage, StylesType } from '../../model/differences.model';
 import { compareTwoStyles } from '../../utils/compare.util';
 import Card from '../Card/Card';
-
+const resetStorage = () => {
+  chrome.storage.local.set({
+    storage: {
+      elementFirstSelected: null,
+      elementSecondSelected: null,
+      activeExtension: true,
+    } as IStorage,
+  });
+};
 const DifferencesPopUp = () => {
   const [elements, setElements] = useState<{
     firstElement: IElements | null;
@@ -21,6 +29,7 @@ const DifferencesPopUp = () => {
       const { diff1, diff2 } = compareTwoStyles(elementFirstSelected.styles, elementSecondSelected.styles);
       setStylesDiffs({ firstStyle: diff1, secondStyle: diff2 });
       setElements({ firstElement: elementFirstSelected, secondElement: elementSecondSelected });
+      resetStorage();
     });
   }, []);
 

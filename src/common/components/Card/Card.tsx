@@ -27,7 +27,6 @@ const createElementWithStylesRecursively = (element: HTMLElement, childrenData: 
 
 const createElementWithStyles = (elementData: any) => {
   const tempContainer = document.createElement('div');
-  tempContainer;
   tempContainer.innerHTML = elementData.html;
   const element = tempContainer.firstElementChild as HTMLElement;
 
@@ -57,7 +56,7 @@ const Card = (data: IProps) => {
       <div className="content">
         <div className="content-element">
           <div
-            style={{ width: '100%', height: '100%' }}
+            style={{ maxWidth: '100%', maxHeight: '100%' }}
             ref={(el) => {
               if (el) el.appendChild(createElementWithStyles(element));
             }}

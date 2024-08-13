@@ -37,8 +37,8 @@ const getElementStyles = (element: HTMLElement) => {
   const computedStyles = window.getComputedStyle(element);
   const styles: { [key: string]: string } = {};
 
-  for (let i = 0; i < computedStyles.length; i++) {
-    const key = computedStyles[i];
+  for (const element of computedStyles) {
+    const key = element;
     styles[key] = computedStyles.getPropertyValue(key);
   }
 
@@ -76,6 +76,7 @@ const flowSelectElement = (props: IFlowSelectElement) => {
     const target = event.target as HTMLElement;
     if (target.id !== BTN_ID) {
       highlightElement(target, overlay);
+      target.addEventListener('click', handleClick);
     }
   };
 
@@ -84,15 +85,15 @@ const flowSelectElement = (props: IFlowSelectElement) => {
     if (target.id !== BTN_ID) {
       event.preventDefault();
       event.stopPropagation();
+      event.stopImmediatePropagation();
       document.body.removeChild(overlay);
       document.removeEventListener('mouseover', handleMouseOver);
-      document.removeEventListener('click', handleClick);
+      target.removeEventListener('click', handleClick);
       selectElement(btn, keyStorage, nextText, target);
     }
   };
 
   document.addEventListener('mouseover', handleMouseOver);
-  document.addEventListener('click', handleClick);
 };
 
 export default flowSelectElement;
